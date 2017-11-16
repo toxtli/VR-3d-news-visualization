@@ -46,38 +46,38 @@ a {
 	border: 1px solid rgba(127,255,255,0.75);
 }
 
-	.element .number {
-		position: absolute;
-		top: 10px;
-		right: 20px;
-		font-size: 12px;
-		color: rgba(127,255,255,0.75);
-	}
+.element .number {
+	position: absolute;
+	top: 10px;
+	right: 20px;
+	font-size: 12px;
+	color: rgba(127,255,255,0.75);
+}
 
-	.element .symbol {
-		position: absolute;
-		top: 30px;
-		left: 0px;
-		right: 0px;
-		font-size: 60px;
-		font-weight: bold;
-		color: rgba(255,255,255,0.75);
-		text-shadow: 0 0 10px rgba(0,255,255,0.95);
-	}
+.element .symbol {
+	position: absolute;
+	top: 30px;
+	left: 0px;
+	right: 0px;
+	font-size: 60px;
+	font-weight: bold;
+	color: rgba(255,255,255,0.75);
+	text-shadow: 0 0 10px rgba(0,255,255,0.95);
+}
 
-	.element .symbol img {
-		max-height: 60px;
-		max-width: 100px;
-	}
+.element .symbol img {
+	max-height: 60px;
+	max-width: 100px;
+}
 
-	.element .details {
-		position: absolute;
-		bottom: 15px;
-		left: 0px;
-		right: 0px;
-		font-size: 12px;
-		color: rgba(127,255,255,0.75);
-	}
+.element .details {
+	position: absolute;
+	bottom: 15px;
+	left: 0px;
+	right: 0px;
+	font-size: 12px;
+	color: rgba(127,255,255,0.75);
+}
 
 button {
 	color: rgba(127,255,255,0.75);
@@ -87,9 +87,11 @@ button {
 	padding: 5px 10px;
 	cursor: pointer;
 }
+
 button:hover {
 	background-color: rgba(0,255,255,0.5);
 }
+
 button:active {
 	color: #000000;
 	background-color: rgba(0,255,255,0.75);

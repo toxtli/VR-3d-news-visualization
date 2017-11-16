@@ -3,32 +3,30 @@ var controls;
 
 var objects = [];
 var targets = { table: [], sphere: [], helix: [], grid: [] };
+var globals = {};
 
 function run() {
 	init();
-	animate();
+	loadNews();
 }
 
-function init() {
-	camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
-	camera.position.z = 3000;
-	scene = new THREE.Scene();
-	// table
-	for ( var i = 0; i < table.length; i += 5 ) {
+function loadData(table) {
+	for ( var i = 0; i < table.length; i++) {
+		var obj = table[i];
 		var element = document.createElement( 'div' );
 		element.className = 'element';
 		element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
 		var number = document.createElement( 'div' );
 		number.className = 'number';
-		number.textContent = table[ i + 2 ];
+		number.textContent = obj.date;
 		element.appendChild( number );
 		var symbol = document.createElement( 'div' );
 		symbol.className = 'symbol';
-		symbol.innerHTML = '<a href="' + table[ i ].split('|')[0] + '" target="_blank"><img src="' + table[ i ].split('|')[1] + '"></a>';
+		symbol.innerHTML = '<a href="' + obj.url + '" target="_blank"><img src="' + obj.img + '"></a>';
 		element.appendChild( symbol );
 		var details = document.createElement( 'div' );
 		details.className = 'details';
-		details.innerHTML = table[ i + 1 ];
+		details.innerHTML = obj.title;
 		element.appendChild( details );
 		var object = new THREE.CSS3DObject( element );
 		object.position.x = Math.random() * 4000 - 2000;
@@ -38,11 +36,15 @@ function init() {
 		objects.push( object );
 		//
 		var object = new THREE.Object3D();
-		object.position.x = ( table[ i + 3 ] * 140 ) - 1330;
-		object.position.y = - ( table[ i + 4 ] * 180 ) + 990;
+		object.position.x = ( obj.col * 140 ) - 1330;
+		object.position.y = - ( obj.row * 180 ) + 990;
 		targets.table.push( object );
 	}
+	renderView();
+	animate();
+}
 
+function renderView() {
 	// sphere
 
 	var vector = new THREE.Vector3();
@@ -118,6 +120,12 @@ function init() {
 	window.addEventListener( 'resize', onWindowResize, false );
 }
 
+function init() {
+	camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
+	camera.position.z = 3000;
+	scene = new THREE.Scene();
+}
+
 function transform( targets, duration ) {
 	TWEEN.removeAll();
 	for ( var i = 0; i < objects.length; i ++ ) {
@@ -153,6 +161,50 @@ function animate() {
 
 function render() {
 	renderer.render( scene, camera );
+}
+
+function loadNews() {
+	var rows = 9;
+	globals.contSource = 0;
+	globals.col = 1;
+	globals.row = 1;
+	globals.data = globals.data ? globals.data : [];
+	globals.ids = globals.ids ? globals.ids : {};
+	for (var i in sources) {
+		var source = sources[i];
+		YUI().use('yql', function(Y){
+		    var query = 'select * from rss(0,100) where url = "' + source.url + '"';
+		    var q = Y.YQL(query, function(r) {
+		        console.log(r.query.results.item);
+		        var feed = r.query.results.item;
+		        for (var i = 0; i < feed.length; i++) {
+		        	globals.data.push({
+		        		url: feed[i].link,
+		        		img: 'img/default.png',
+		        		title: feed[i].title,
+		        		date: feed[i].pubDate,
+		        		col: globals.col,
+		        		row: globals.row
+		        	});
+		        	globals.row++;
+					if (globals.row > rows) {
+						globals.row = 1;
+						globals.col += 1;
+					}
+		        }
+		        globals.contSource++;
+		        if (globals.contSource == sources.length) {
+		        	newsLoaded();
+		        }
+		    })
+		});
+	}
+}
+
+function newsLoaded() {
+	console.log("Done");
+	console.log(globals.data);
+	loadData(globals.data);
 }
 
 run();
