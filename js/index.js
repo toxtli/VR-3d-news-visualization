@@ -170,41 +170,69 @@ function loadNews() {
 	globals.row = 1;
 	globals.data = globals.data ? globals.data : [];
 	globals.ids = globals.ids ? globals.ids : {};
-	for (var i in sources) {
-		var source = sources[i];
+	sources.forEach(function(source) {
+		console.log(source);
 		YUI().use('yql', function(Y){
 		    var query = 'select * from rss(0,100) where url = "' + source.url + '"';
 		    var q = Y.YQL(query, function(r) {
-		        console.log(r.query.results.item);
-		        var feed = r.query.results.item;
-		        for (var i = 0; i < feed.length; i++) {
-		        	globals.data.push({
-		        		url: feed[i].link,
-		        		img: 'img/default.png',
-		        		title: feed[i].title,
-		        		date: feed[i].pubDate,
-		        		col: globals.col,
-		        		row: globals.row
-		        	});
-		        	globals.row++;
-					if (globals.row > rows) {
-						globals.row = 1;
-						globals.col += 1;
-					}
+		        // console.log(r.query.results.item);
+		        if (r.query.results) {
+			        var feeds = r.query.results.item;
+			        feeds.forEach(function(feed) {
+			        	var time = Date.parse(feed.pubDate);
+			        	var date = moment.unix(time/1000).format('ll');
+			        	globals.data.push({
+			        		url: feed.link,
+			        		img: 'img/default.png',
+			        		title: feed.title,
+			        		time: time,
+			        		date: date,
+			        		col: globals.col,
+			        		row: globals.row
+			        	});
+			        	globals.row++;
+						if (globals.row > rows) {
+							globals.row = 1;
+							globals.col += 1;
+						}
+			        });
 		        }
-		        globals.contSource++;
+	        	globals.contSource++;
 		        if (globals.contSource == sources.length) {
 		        	newsLoaded();
 		        }
 		    })
 		});
+	});
+}
+
+function filterData(data) {
+	var db = TAFFY(data);
+	var elements = db().order("time desc").limit(108).get();
+	orderElements(elements);
+	return elements;
+}
+
+function orderElements(elements) {
+	var col = 1;
+	var row = 1;
+	var rows = 9;
+	for (var i in elements) {
+		elements[i].col = col;
+		elements[i].row = row;
+	    row++;
+		if (row > rows) {
+			row = 1;
+			col += 1;
+		}
 	}
 }
 
 function newsLoaded() {
 	console.log("Done");
 	console.log(globals.data);
-	loadData(globals.data);
+	var filteredData = filterData(globals.data);
+	loadData(filteredData);
 }
 
 run();
