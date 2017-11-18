@@ -1,5 +1,5 @@
 var camera, scene, renderer;
-var controls;
+var controls, spinner;
 var Graph;
 
 var objects = [];
@@ -252,6 +252,7 @@ function orderElements(elements) {
 
 function newsLoaded() {
 	console.log("Done");
+	$(".loader").hide();
 	console.log(globals.data);
 	var filteredData = filterData(globals.data);
 	loadData(filteredData);

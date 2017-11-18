@@ -1,5 +1,8 @@
 html, body {
 	height: 100%;
+    text-align: center;
+    font-family: Sans-serif;
+    margin: 0;
 }
 
 body {
@@ -95,4 +98,70 @@ button:hover {
 button:active {
 	color: #000000;
 	background-color: rgba(0,255,255,0.75);
+}
+
+.loader {
+	position: absolute;
+	top: 30%;
+	left: 45%;
+    border: 16px solid #000000;
+    border-top: 16px solid rgba(127,255,255,0.75); /* Blue */
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.graph-data {
+    position: absolute;
+    top: 0px;
+    right: 0px;
+    padding: 5px;
+}
+
+.toggle-data-btn {
+    cursor: pointer;
+    opacity: 0.85;
+}
+
+.toggle-data-btn:hover {
+    opacity: 1;
+}
+
+#graph-data-description {
+    font-size: 12px;
+    color: black;
+}
+
+.graph-nav-info {
+    position: absolute;
+    bottom: 5px;
+    width: 100%;
+    text-align: center;
+    color: black;
+    opacity: 0.7;
+    font-size: 10px;
+}
+
+.graph-info-msg {
+    position: absolute;
+    top: 50%;
+    width: 100%;
+    text-align: center;
+    color: lavender;
+    opacity: 0.7;
+    font-size: 22px;
+}
+
+.graph-tooltip {
+    position: absolute;
+    color: lavender;
+    font-size: 18px;
+    top: 524px;
+    left: 1246px;
 }
