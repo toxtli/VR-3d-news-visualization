@@ -95,6 +95,9 @@ function renderView() {
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.domElement.style.position = 'absolute';
 	document.getElementById( 'container' ).appendChild( renderer.domElement );
+	var vrButton = WEBVR.createButton(renderer);
+	vrButton.className = "menuButton";
+	$("#menu").append(vrButton);
 	//
 	controls = new THREE.TrackballControls( camera, renderer.domElement );
 	controls.rotateSpeed = 0.5;
