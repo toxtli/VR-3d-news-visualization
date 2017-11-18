@@ -124,7 +124,12 @@ function renderView() {
 
 function initControls() {
 	$("#graph").on("click", function(e) {
+		$("#3d-graph").remove();
+		$("body").prepend('<div id="3d-graph"></div>');
 		initGraph();
+	});
+	$(".hideGraph").on("click", function(e) {
+		$("#3d-graph").remove();
 	});
 }
 
