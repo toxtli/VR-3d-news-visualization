@@ -1,5 +1,6 @@
 var camera, scene, renderer;
 var controls;
+var Graph;
 
 var objects = [];
 var targets = { table: [], sphere: [], helix: [], grid: [] };
@@ -11,6 +12,7 @@ function run() {
 }
 
 function loadData(table) {
+	globals.dataLoaded = table;
 	for ( var i = 0; i < table.length; i++) {
 		var obj = table[i];
 		var element = document.createElement( 'div' );
@@ -120,7 +122,14 @@ function renderView() {
 	window.addEventListener( 'resize', onWindowResize, false );
 }
 
+function initControls() {
+	$("#graph").on("click", function(e) {
+		initGraph();
+	});
+}
+
 function init() {
+	initControls();
 	camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
 	camera.position.z = 3000;
 	scene = new THREE.Scene();
@@ -165,25 +174,33 @@ function render() {
 
 function loadNews() {
 	var rows = 9;
+	var rex = /<img[^>]+src="?([^"\s]+)"?\s*\/>/g;
 	globals.contSource = 0;
 	globals.col = 1;
 	globals.row = 1;
 	globals.data = globals.data ? globals.data : [];
 	globals.ids = globals.ids ? globals.ids : {};
 	sources.forEach(function(source) {
-		console.log(source);
 		YUI().use('yql', function(Y){
-		    var query = 'select * from rss(0,100) where url = "' + source.url + '"';
+		    var query = 'select * from rss where url = "' + source.url + '"';
 		    var q = Y.YQL(query, function(r) {
-		        // console.log(r.query.results.item);
 		        if (r.query.results) {
 			        var feeds = r.query.results.item;
 			        feeds.forEach(function(feed) {
 			        	var time = Date.parse(feed.pubDate);
 			        	var date = moment.unix(time/1000).format('ll');
+			        	var img = 'img/default.png';
+			        	if (feed.thumbnail && feed.thumbnail.length > 0) {
+			        		img = feed.thumbnail.shift().url;
+			        	} else {
+			        		var imgs = rex.exec(feed.encoded || feed.description);
+			        		if (imgs && imgs.length) {
+			        			img = imgs[1];
+			        		}
+			        	}
 			        	globals.data.push({
 			        		url: feed.link,
-			        		img: 'img/default.png',
+			        		img: img,
 			        		title: feed.title,
 			        		time: time,
 			        		date: date,
@@ -233,6 +250,119 @@ function newsLoaded() {
 	console.log(globals.data);
 	var filteredData = filterData(globals.data);
 	loadData(filteredData);
+}
+
+function onNodeClick(node) {
+	console.log("SINGLE CLICK");
+	console.log(node);
+	if (node.type == "line") {
+		if (node.__line.material.opacity == 1) {
+			node.__line.material.opacity = 0.2;
+		} else {
+			node.__line.material.opacity = 1;
+		}
+	} else {
+		if (node.__sphere.material.opacity == 1) {
+			node.__sphere.material.opacity = 0.75;
+		} else {
+			node.__sphere.material.opacity = 1;
+		}
+	}
+}
+
+function onNodeDblClick(node) {
+	console.log("DOUBLE CLICK");
+	console.log(node);
+	if (node.type == "node") {
+		openInNewTab(node.id);
+	}
+}
+
+function openInNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}
+
+function getData() {
+	var data = globals.dataLoaded;
+	var wordsArray = {};
+	var output = {nodes:[], links:[]};
+	var k = 1;
+	for (var i = 0; i < data.length; i++) {
+		var record = data[i];
+		var url = record.url;
+		var img = record.img;
+		var name = record.title;
+		var keywords = name.removeStopWords().split(" ");
+		if (k%8 == 0) {
+			k = 1;
+		}
+		output.nodes.push({
+			id: url,
+			name: name,
+			group: k
+		});
+		for (var j in keywords) {
+			var word = keywords[j];
+			if (isNaN(word)) {
+				if (wordsArray[word] === undefined) {
+					wordsArray[word] = [];
+				}
+				wordsArray[word].push(url);
+			}
+		}
+		k++;
+	}
+	for (var word in wordsArray) {
+		for (var i = 0; i < wordsArray[word].length; i++) {
+			for (var j = i + 1; j < wordsArray[word].length; j++) {
+				if (i != j) {
+					output.links.push({
+						source: wordsArray[word][i],
+						target: wordsArray[word][j],
+						name: word,
+						value: 1
+					})
+				}
+			}		
+		}
+	}
+	Graph.graphData(output);
+	console.log(output);
+}
+
+function initGraph() {
+	Graph = ForceGraph3D()(document.getElementById("3d-graph"));
+	loadGraph();
+	getData();
+	//getData(window.location.hash?window.location.hash.replace("#",""):"android");
+}
+
+function loadGraph() {
+	Graph.resetProps();
+	Graph
+		.warmupTicks(0)
+	    .cooldownTime(1500)
+	   	.cooldownTicks(200)
+	    .nodeRelSize(5)
+	    .numDimensions(3)
+	    .nodeResolution(8)
+	    .lineOpacity(0.2)
+		.autoColorBy('group')
+		.idField('id')
+	    .nameField('name')
+	    .linkSourceField('source')
+	    .linkTargetField('target')
+	    .linkNameField('name')
+	    .onNodeClick(onNodeClick)
+	    .onNodeDblClick(onNodeDblClick)
+	    .forceEngine('ngraph')
+	/*
+	    //.valField('group')
+	    //.colorField('color')
+	    //.linkColorField('color')
+	    //.jsonUrl(url);
+	*/
 }
 
 run();
