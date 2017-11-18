@@ -133,6 +133,10 @@ button:active {
     opacity: 1;
 }
 
+#3d-graph {
+	height: 100%;
+}
+
 #graph-data-description {
     font-size: 12px;
     color: black;
