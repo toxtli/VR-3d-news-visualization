@@ -142,7 +142,7 @@ function initControls() {
 	} else {
 		$("#vrbutton").text("VR is Off");
 	}
-	$(document).on("touchstart", function(){
+	$("#container").on("touchstart", function(){
 		if (stereoEnabled) {
 			$("#menu").toggle();
 		}
