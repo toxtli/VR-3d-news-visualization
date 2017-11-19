@@ -381,7 +381,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 			setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
 			this.alpha = alpha;
-			//_this.dispatchEvent( changeEvent );
+			_this.dispatchEvent( changeEvent );
 		}
 
 	};
@@ -641,7 +641,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	var onDeviceOrientationChangeEvent = function( event ) {
-		alert(test);
+		alert(1);
 		scope.deviceOrientation = event;
 
 	};
