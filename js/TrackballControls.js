@@ -380,8 +380,14 @@ THREE.TrackballControls = function ( object, domElement ) {
 			var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
 
 			setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
+			var toChange = false;
+			if (this.alpha != alpha) {
+				toChange = true;
+			}
 			this.alpha = alpha;
-			//_this.dispatchEvent( changeEvent );
+			if (toChange) {
+				_this.dispatchEvent( changeEvent );
+			}
 		}
 
 	};
