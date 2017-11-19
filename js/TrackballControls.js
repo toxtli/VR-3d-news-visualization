@@ -373,7 +373,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		}
 
-		if ( scope.VREnabled === true ) {
+		if ( scope.vrEnabled === true ) {
 			var alpha = scope.deviceOrientation.alpha ? THREE.Math.degToRad( scope.deviceOrientation.alpha ) + this.alphaOffsetAngle : 0; // Z
 			var beta = scope.deviceOrientation.beta ? THREE.Math.degToRad( scope.deviceOrientation.beta ) : 0; // X'
 			var gamma = scope.deviceOrientation.gamma ? THREE.Math.degToRad( scope.deviceOrientation.gamma ) : 0; // Y''
@@ -381,7 +381,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 			setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
 			this.alpha = alpha;
-			_this.dispatchEvent( changeEvent );
+			//_this.dispatchEvent( changeEvent );
 		}
 
 	};
@@ -641,7 +641,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	var onDeviceOrientationChangeEvent = function( event ) {
-
+		alert(test);
 		scope.deviceOrientation = event;
 
 	};
