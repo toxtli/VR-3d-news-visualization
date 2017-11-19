@@ -7,6 +7,7 @@
 
 THREE.TrackballControls = function ( object, domElement ) {
 
+	var scope = this;
 	var _this = this;
 	var STATE = { NONE: - 1, ROTATE: 0, ZOOM: 1, PAN: 2, TOUCH_ROTATE: 3, TOUCH_ZOOM_PAN: 4 };
 
@@ -16,6 +17,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 	// API
 
 	this.enabled = true;
+	this.vrEnabled = true;
 
 	this.screen = { left: 0, top: 0, width: 0, height: 0 };
 
@@ -34,6 +36,17 @@ THREE.TrackballControls = function ( object, domElement ) {
 	this.maxDistance = Infinity;
 
 	this.keys = [ 65 /*A*/, 83 /*S*/, 68 /*D*/ ];
+
+	// rotation vars
+
+	this.object.rotation.reorder( "YXZ" );
+
+	this.deviceOrientation = {};
+	this.screenOrientation = 0;
+
+	this.alpha = 0;
+	this.alphaOffsetAngle = 0;
+
 
 	// internals
 
@@ -110,6 +123,37 @@ THREE.TrackballControls = function ( object, domElement ) {
 		}
 
 	};
+
+	this.updateAlphaOffsetAngle = function( angle ) {
+
+		this.alphaOffsetAngle = angle;
+		this.update();
+
+	};
+
+	var setObjectQuaternion = function() {
+
+		var zee = new THREE.Vector3( 0, 0, 1 );
+
+		var euler = new THREE.Euler();
+
+		var q0 = new THREE.Quaternion();
+
+		var q1 = new THREE.Quaternion( - Math.sqrt( 0.5 ), 0, 0, Math.sqrt( 0.5 ) ); // - PI/2 around the x-axis
+
+		return function( quaternion, alpha, beta, gamma, orient ) {
+
+			euler.set( beta, alpha, - gamma, 'YXZ' ); // 'ZXY' for the device, but 'YXZ' for us
+
+			quaternion.setFromEuler( euler ); // orient the device
+
+			quaternion.multiply( q1 ); // camera looks out the back of the device, not the top
+
+			quaternion.multiply( q0.setFromAxisAngle( zee, - orient ) ); // adjust for screen orientation
+
+		}
+
+	}();
 
 	var getMouseOnScreen = ( function () {
 
@@ -327,6 +371,16 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 			lastPosition.copy( _this.object.position );
 
+		}
+
+		if ( scope.VREnabled === true ) {
+			var alpha = scope.deviceOrientation.alpha ? THREE.Math.degToRad( scope.deviceOrientation.alpha ) + this.alphaOffsetAngle : 0; // Z
+			var beta = scope.deviceOrientation.beta ? THREE.Math.degToRad( scope.deviceOrientation.beta ) : 0; // X'
+			var gamma = scope.deviceOrientation.gamma ? THREE.Math.degToRad( scope.deviceOrientation.gamma ) : 0; // Y''
+			var orient = scope.screenOrientation ? THREE.Math.degToRad( scope.screenOrientation ) : 0; // O
+
+			setObjectQuaternion( scope.object.quaternion, alpha, beta, gamma, orient );
+			this.alpha = alpha;
 		}
 
 	};
@@ -585,6 +639,18 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	}
 
+	var onDeviceOrientationChangeEvent = function( event ) {
+
+		scope.deviceOrientation = event;
+
+	};
+
+	var onScreenOrientationChangeEvent = function() {
+
+		scope.screenOrientation = window.orientation || 0;
+
+	};
+
 	this.dispose = function() {
 
 		this.domElement.removeEventListener( 'contextmenu', contextmenu, false );
@@ -601,6 +667,12 @@ THREE.TrackballControls = function ( object, domElement ) {
 		window.removeEventListener( 'keydown', keydown, false );
 		window.removeEventListener( 'keyup', keyup, false );
 
+		window.removeEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
+		window.removeEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+
+		scope.enabled = false;
+		scope.vrEnabled = false;
+
 	};
 
 	this.domElement.addEventListener( 'contextmenu', contextmenu, false );
@@ -613,6 +685,12 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	window.addEventListener( 'keydown', keydown, false );
 	window.addEventListener( 'keyup', keyup, false );
+
+	if (scope.vrEnabled === true) {
+		onScreenOrientationChangeEvent();
+		window.addEventListener( 'orientationchange', onScreenOrientationChangeEvent, false );
+		window.addEventListener( 'deviceorientation', onDeviceOrientationChangeEvent, false );
+	}
 
 	this.handleResize();
 

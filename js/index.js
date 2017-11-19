@@ -91,17 +91,21 @@ function renderView() {
 		targets.grid.push( object );
 	}
 	//
-	renderer = new THREE.CSS3DRenderer();
+	// renderer = new THREE.CSS3DRenderer();
+	renderer = new THREE.CSS3DStereoRenderer();
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.domElement.style.position = 'absolute';
 	document.getElementById( 'container' ).appendChild( renderer.domElement );
-	var vrButton = WEBVR.createButton(renderer);
-	//
+	/*
+	controls = new THREE.DeviceOrientationControls( camera );
+	transform( targets.table, 5000 );
+	*/
 	controls = new THREE.TrackballControls( camera, renderer.domElement );
 	controls.rotateSpeed = 0.5;
 	controls.minDistance = 500;
 	controls.maxDistance = 6000;
 	controls.addEventListener( 'change', render );
+	
 	var button = document.getElementById( 'table' );
 	button.addEventListener( 'click', function ( event ) {
 		transform( targets.table, 2000 );
