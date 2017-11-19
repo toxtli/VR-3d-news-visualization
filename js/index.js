@@ -142,6 +142,11 @@ function initControls() {
 	} else {
 		$("#vrbutton").text("VR is Off");
 	}
+	$(document).on("touchstart", function(){
+		if (stereoEnabled) {
+			$("#menu").toggle();
+		}
+	});
 	$("#vrbutton").on("click", function(e) {
 		if (stereoEnabled) {
 			window.location.href = "#3d";
