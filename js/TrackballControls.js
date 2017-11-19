@@ -641,7 +641,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 	}
 
 	var onDeviceOrientationChangeEvent = function( event ) {
-		alert(1);
+		
 		scope.deviceOrientation = event;
 
 	};
