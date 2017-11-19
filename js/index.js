@@ -138,6 +138,7 @@ function renderView() {
 function initControls() {
 	if (stereoEnabled) {
 		$("#vrbutton").text("VR is On");
+		$("#graph").hide();
 	} else {
 		$("#vrbutton").text("VR is Off");
 	}
