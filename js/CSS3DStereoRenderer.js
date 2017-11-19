@@ -2,46 +2,6 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-THREE.CSS3DObject = function ( element ) {
-
-	THREE.Object3D.call( this );
-
-	this.elementL = element.cloneNode( true );
-	this.elementL.style.position = 'absolute';
-
-	this.elementR = element.cloneNode( true );
-	this.elementR.style.position = 'absolute';
-
-	this.addEventListener( 'removed', function ( event ) {
-
-		if ( this.elementL.parentNode !== null ) {
-
-			this.elementL.parentNode.removeChild( this.elementL );
-
-		}
-
-		if ( this.elementR.parentNode !== null ) {
-
-			this.elementR.parentNode.removeChild( this.elementR );
-
-		}
-
-	} );
-
-};
-
-THREE.CSS3DObject.prototype = Object.create( THREE.Object3D.prototype );
-THREE.CSS3DObject.prototype.constructor = THREE.CSS3DObject;
-
-THREE.CSS3DSprite = function ( element ) {
-
-	THREE.CSS3DObject.call( this, element );
-
-};
-
-THREE.CSS3DSprite.prototype = Object.create( THREE.CSS3DObject.prototype );
-THREE.CSS3DSprite.prototype.constructor = THREE.CSS3DSprite;
-
 //
 
 THREE.CSS3DStereoRenderer = function () {

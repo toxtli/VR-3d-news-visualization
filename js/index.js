@@ -2,6 +2,7 @@ var camera, scene, renderer;
 var controls, spinner;
 var Graph;
 
+var stereoEnabled = false;
 var objects = [];
 var targets = { table: [], sphere: [], helix: [], grid: [] };
 var globals = {};
@@ -91,8 +92,11 @@ function renderView() {
 		targets.grid.push( object );
 	}
 	//
-	// renderer = new THREE.CSS3DRenderer();
-	renderer = new THREE.CSS3DStereoRenderer();
+	if (stereoEnabled) {
+		renderer = new THREE.CSS3DStereoRenderer();
+	} else {
+		renderer = new THREE.CSS3DRenderer();
+	}
 	renderer.setSize( window.innerWidth, window.innerHeight );
 	renderer.domElement.style.position = 'absolute';
 	document.getElementById( 'container' ).appendChild( renderer.domElement );
@@ -100,7 +104,11 @@ function renderView() {
 	controls = new THREE.DeviceOrientationControls( camera );
 	transform( targets.table, 5000 );
 	*/
-	controls = new THREE.TrackballControls( camera, renderer.domElement );
+	if (stereoEnabled) {
+		controls = new THREE.TrackballAndOrientationControls( camera, renderer.domElement );
+	} else {
+		controls = new THREE.TrackballControls( camera, renderer.domElement );
+	}
 	controls.rotateSpeed = 0.5;
 	controls.minDistance = 500;
 	controls.maxDistance = 6000;
@@ -128,6 +136,20 @@ function renderView() {
 }
 
 function initControls() {
+	if (stereoEnabled) {
+		$("#vrbutton").text("VR is On");
+	} else {
+		$("#vrbutton").text("VR is Off");
+	}
+	$("#vrbutton").on("click", function(e) {
+		if (stereoEnabled) {
+			window.location.href = "#3d";
+			window.location.reload(true);
+		} else {
+			window.location.href = "#vr";
+			window.location.reload(true);
+		}
+	});
 	$("#graph").on("click", function(e) {
 		$("#3d-graph").remove();
 		$("body").prepend('<div id="3d-graph"></div>');
@@ -139,7 +161,87 @@ function initControls() {
 }
 
 function init() {
+	var param = window.location.hash?window.location.hash.replace("#",""):"";
+	stereoEnabled = param.toLowerCase() == "vr"? true: false;
 	initControls();
+	init3D(stereoEnabled);
+}
+
+function init3D(stereoEnabled) {
+	if (stereoEnabled) {
+		THREE.CSS3DObject = function ( element ) {
+
+			THREE.Object3D.call( this );
+
+			this.elementL = element.cloneNode( true );
+			this.elementL.style.position = 'absolute';
+
+			this.elementR = element.cloneNode( true );
+			this.elementR.style.position = 'absolute';
+
+			this.addEventListener( 'removed', function ( event ) {
+
+				if ( this.elementL.parentNode !== null ) {
+
+					this.elementL.parentNode.removeChild( this.elementL );
+
+				}
+
+				if ( this.elementR.parentNode !== null ) {
+
+					this.elementR.parentNode.removeChild( this.elementR );
+
+				}
+
+			} );
+
+		};
+
+		THREE.CSS3DObject.prototype = Object.create( THREE.Object3D.prototype );
+		THREE.CSS3DObject.prototype.constructor = THREE.CSS3DObject;
+
+		THREE.CSS3DSprite = function ( element ) {
+
+			THREE.CSS3DObject.call( this, element );
+
+		};
+
+		THREE.CSS3DSprite.prototype = Object.create( THREE.CSS3DObject.prototype );
+		THREE.CSS3DSprite.prototype.constructor = THREE.CSS3DSprite;
+
+	} else {
+		
+		THREE.CSS3DObject = function ( element ) {
+
+			THREE.Object3D.call( this );
+
+			this.element = element;
+			this.element.style.position = 'absolute';
+
+			this.addEventListener( 'removed', function () {
+
+				if ( this.element.parentNode !== null ) {
+
+					this.element.parentNode.removeChild( this.element );
+
+				}
+
+			} );
+
+		};
+
+		THREE.CSS3DObject.prototype = Object.create( THREE.Object3D.prototype );
+		THREE.CSS3DObject.prototype.constructor = THREE.CSS3DObject;
+
+		THREE.CSS3DSprite = function ( element ) {
+
+			THREE.CSS3DObject.call( this, element );
+
+		};
+
+		THREE.CSS3DSprite.prototype = Object.create( THREE.CSS3DObject.prototype );
+		THREE.CSS3DSprite.prototype.constructor = THREE.CSS3DSprite;
+	}
 	camera = new THREE.PerspectiveCamera( 40, window.innerWidth / window.innerHeight, 1, 10000 );
 	camera.position.z = 3000;
 	scene = new THREE.Scene();
