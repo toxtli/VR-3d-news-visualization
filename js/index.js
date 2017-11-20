@@ -58,15 +58,33 @@ function openElement(id) {
 		}
 	};
 	element.appendChild( iframe );
+	var duration = 500;
 	var object = new THREE.CSS3DObject( element );
-	object.position.x = obj.position.x;
-	object.position.y = obj.position.y;
-	object.position.z = obj.position.z + ( Math.random() * 100 + 100 );
-	scene.add( object );
+	object.rotation.x = 0;
+	object.rotation.y = 1.5;
+	object.rotation.z = 0;
+	object.position = obj.position;
 	closeButton.addEventListener('click', function(){
 		scene.remove(object);
 	});
-	render();
+	var target = new THREE.Object3D();
+	target.rotation = obj.rotation;
+	target.position.x = obj.position.x;
+	target.position.y = obj.position.y;
+	target.position.z = obj.position.z + ( Math.random() * 200 + 200 );
+	scene.add( object );
+	new TWEEN.Tween( object.position )
+		.to( { x: target.position.x, y: target.position.y, z: target.position.z }, Math.random() * duration + duration )
+		.easing( TWEEN.Easing.Exponential.InOut )
+		.start();
+	new TWEEN.Tween( object.rotation )
+		.to( { x: target.rotation.x, y: target.rotation.y, z: target.rotation.z }, Math.random() * duration + duration )
+		.easing( TWEEN.Easing.Exponential.InOut )
+		.start();
+	new TWEEN.Tween( this )
+		.to( {}, duration * 2 )
+		.onUpdate( render )
+		.start();
 	// openInNewTab(objects[id].extra.url);
 }
 
