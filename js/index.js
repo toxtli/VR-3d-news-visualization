@@ -63,12 +63,16 @@ function openElement(id) {
 	object.rotation.x = 0;
 	object.rotation.y = 1.5;
 	object.rotation.z = 0;
-	object.position = obj.position;
+	object.position.x = obj.position.x;
+	object.position.y = obj.position.y;
+	object.position.z = obj.position.z;
 	closeButton.addEventListener('click', function(){
 		scene.remove(object);
 	});
 	var target = new THREE.Object3D();
-	target.rotation = obj.rotation;
+	target.rotation.x = obj.rotation.x;
+	target.rotation.y = obj.rotation.y;
+	target.rotation.z = obj.rotation.z;
 	target.position.x = obj.position.x;
 	target.position.y = obj.position.y;
 	target.position.z = obj.position.z + ( Math.random() * 200 + 200 );
