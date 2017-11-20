@@ -1,5 +1,5 @@
 var camera, scene, renderer;
-var controls, spinner;
+var controls, spinner, noSleep;
 var Graph;
 
 var stereoEnabled = false;
@@ -198,6 +198,7 @@ function initControls() {
 	if (stereoEnabled) {
 		$("#vrbutton").text("VR is On");
 		$("#graph").hide();
+		noSleep.enable();
 	} else {
 		$("#vrbutton").text("VR is Off");
 	}
@@ -228,6 +229,7 @@ function initControls() {
 function init() {
 	var param = window.location.hash?window.location.hash.replace("#",""):"";
 	stereoEnabled = param.toLowerCase() == "vr"? true: false;
+	noSleep = new NoSleep();
 	initControls();
 	init3D(stereoEnabled);
 }
