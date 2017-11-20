@@ -226,10 +226,16 @@ function initControls() {
 	});
 }
 
+function enableNoSleep() {
+  noSleep.enable();
+  document.removeEventListener('click', enableNoSleep, false);
+}
+
 function init() {
 	var param = window.location.hash?window.location.hash.replace("#",""):"";
 	stereoEnabled = param.toLowerCase() == "vr"? true: false;
 	noSleep = new NoSleep();
+	document.addEventListener('click', enableNoSleep, false);
 	initControls();
 	init3D(stereoEnabled);
 }
