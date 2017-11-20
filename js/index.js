@@ -46,6 +46,7 @@ function openElement(id) {
 	header.appendChild( closeButton );
 	element.appendChild( header );
 	var iframe = document.createElement( 'iframe' );
+	iframe.style.backgroundColor = '#ffffff';
 	iframe.style.width = '1024px';
 	iframe.style.height = '768px';
 	loadTime = (new Date()).getTime();
@@ -53,7 +54,7 @@ function openElement(id) {
 	iframe.onload = function(e) {
 		var diff = (new Date()).getTime() - loadTime;
 		if (diff < 900) {
-			iframe.src = "data:text/html;charset=utf-8," + escape('<div style="width:100%; height:100%; background-color:#ffffff;font-size:32px;">' + obj.extra.description + '</div>');
+			iframe.src = "data:text/html;charset=utf-8," + escape('<div style="font-size:48px;">' + obj.extra.description + '</div>');
 		}
 	};
 	element.appendChild( iframe );
