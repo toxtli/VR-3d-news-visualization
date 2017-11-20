@@ -3,13 +3,70 @@ var controls, spinner;
 var Graph;
 
 var stereoEnabled = false;
+var currentView = 'table';
 var objects = [];
 var targets = { table: [], sphere: [], helix: [], grid: [] };
 var globals = {};
+var loadTime = 0;
+var db = null;
 
 function run() {
 	init();
 	loadNews();
+}
+
+function openInNewTab(url) {
+  var win = window.open(url, '_blank');
+  win.focus();
+}
+
+function openElement(id) {
+	var obj = objects[id];
+	var element = document.createElement( 'div' );
+	element.className = 'element';
+	element.style.width = '1024px';
+	element.style.height = '818px';
+	element.style.backgroundColor = 'rgba(0,127,127,' + ( Math.random() * 0.5 + 0.25 ) + ')';
+	var header = document.createElement( 'div' );
+	header.style.width = '1024px';
+	header.style.height = '50px';
+	var titleBar = document.createElement( 'div' );
+	titleBar.style.display = 'inline';
+	titleBar.style.float = 'left';
+	titleBar.style.width = '900px';
+	titleBar.style.height = '50px';
+	titleBar.innerHTML = '<a style="color:#ffffff;font-size:24px" href="' + obj.extra.url + '" target="_blank">' + obj.extra.title + '</a>';
+	header.appendChild( titleBar );
+	var closeButton = document.createElement( 'div' );
+	closeButton.style.display = 'inline';
+	closeButton.style.float = 'right';
+	closeButton.style.width = '124px';
+	closeButton.style.height = '50px';
+	closeButton.innerHTML = "X";
+	header.appendChild( closeButton );
+	element.appendChild( header );
+	var iframe = document.createElement( 'iframe' );
+	iframe.style.width = '1024px';
+	iframe.style.height = '768px';
+	loadTime = (new Date()).getTime();
+	iframe.src = obj.extra.url;
+	iframe.onload = function(e) {
+		var diff = (new Date()).getTime() - loadTime;
+		if (diff < 900) {
+			iframe.src = "data:text/html;charset=utf-8," + escape('<div style="width:100%; height:100%; background-color:#ffffff;font-size:32px;">' + obj.extra.description + '</div>');
+		}
+	};
+	element.appendChild( iframe );
+	var object = new THREE.CSS3DObject( element );
+	object.position.x = obj.position.x;
+	object.position.y = obj.position.y;
+	object.position.z = obj.position.z + ( Math.random() * 100 + 100 );
+	scene.add( object );
+	closeButton.addEventListener('click', function(){
+		scene.remove(object);
+	});
+	render();
+	// openInNewTab(objects[id].extra.url);
 }
 
 function loadData(table) {
@@ -25,7 +82,7 @@ function loadData(table) {
 		element.appendChild( number );
 		var symbol = document.createElement( 'div' );
 		symbol.className = 'symbol';
-		symbol.innerHTML = '<a href="' + obj.url + '" target="_blank"><img src="' + obj.img + '"></a>';
+		symbol.innerHTML = '<a href="javascript:openElement('+i+')"><img src="' + obj.img + '"></a>';
 		element.appendChild( symbol );
 		var details = document.createElement( 'div' );
 		details.className = 'details';
@@ -35,6 +92,7 @@ function loadData(table) {
 		object.position.x = Math.random() * 4000 - 2000;
 		object.position.y = Math.random() * 4000 - 2000;
 		object.position.z = Math.random() * 4000 - 2000;
+		object.extra = obj;
 		scene.add( object );
 		objects.push( object );
 		//
@@ -316,7 +374,7 @@ function loadNews() {
 			        			img = imgs[1];
 			        		}
 			        	}
-			        	globals.data.push({
+			        	globals.data.push(Object.assign({}, feed, {
 			        		url: feed.link,
 			        		img: img,
 			        		title: feed.title,
@@ -324,7 +382,7 @@ function loadNews() {
 			        		date: date,
 			        		col: globals.col,
 			        		row: globals.row
-			        	});
+			        	}));
 			        	globals.row++;
 						if (globals.row > rows) {
 							globals.row = 1;
@@ -342,7 +400,7 @@ function loadNews() {
 }
 
 function filterData(data) {
-	var db = TAFFY(data);
+	db = TAFFY(data);
 	var elements = db().order("time desc").limit(108).get();
 	orderElements(elements);
 	return elements;
