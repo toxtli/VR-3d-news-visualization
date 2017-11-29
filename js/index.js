@@ -240,6 +240,7 @@ function initControls() {
 	});
 	$("#fullscreen").on("click", function(e) {
 		toggleFullScreen();
+		console.log(navigator.standalone);
 	});
 	$("#graph").on("click", function(e) {
 		$("#3d-graph").remove();
