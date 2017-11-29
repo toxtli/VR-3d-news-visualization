@@ -194,7 +194,7 @@ function renderView() {
 	controls.minDistance = 500;
 	controls.maxDistance = 6000;
 	controls.addEventListener( 'change', render );
-	
+
 	var button = document.getElementById( 'table' );
 	button.addEventListener( 'click', function ( event ) {
 		transform( targets.table, 2000 );
@@ -237,6 +237,9 @@ function initControls() {
 			window.location.href = "#vr";
 			window.location.reload(true);
 		}
+	});
+	$("#fullscreen").on("click", function(e) {
+		document.body.requestFullscreen();
 	});
 	$("#graph").on("click", function(e) {
 		$("#3d-graph").remove();
@@ -305,7 +308,7 @@ function init3D(stereoEnabled) {
 		THREE.CSS3DSprite.prototype.constructor = THREE.CSS3DSprite;
 
 	} else {
-		
+
 		THREE.CSS3DObject = function ( element ) {
 
 			THREE.Object3D.call( this );
@@ -398,7 +401,9 @@ function loadNews() {
 			        	var date = moment.unix(time/1000).format('ll');
 			        	var img = 'img/default.png';
 			        	if (feed.thumbnail && feed.thumbnail.length > 0) {
-			        		img = feed.thumbnail.shift().url;
+									if (feed.thumbnail.shift) {
+										img = feed.thumbnail.shift().url;
+									}
 			        	} else {
 			        		var imgs = rex.exec(feed.encoded || feed.description);
 			        		if (imgs && imgs.length) {
@@ -532,7 +537,7 @@ function getData() {
 						value: 1
 					})
 				}
-			}		
+			}
 		}
 	}
 	Graph.graphData(output);
